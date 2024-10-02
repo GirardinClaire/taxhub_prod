@@ -1,0 +1,17 @@
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "apptax/tests/",
+]
+
+[tool.coverage.run]
+source = [
+    "apptax/",
+]
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+]
+
+[tool.black]
+line-length = 99

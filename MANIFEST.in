@@ -1,0 +1,6 @@
+include VERSION
+include LICENSE
+include README.rst
+include requirements.in
+include requirements-common.in
+include requirements-dependencies.in

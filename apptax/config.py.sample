@@ -1,0 +1,39 @@
+
+'''
+TaxHub global settings file
+'''
+
+# Log level
+# To enable SQLAlchemy logging, uncomment the lines below.
+#import logging
+#logging.basicConfig()
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+# Database settings
+SQLALCHEMY_DATABASE_URI = "postgresql://monuser:monpassachanger@localhost/taxhubdb"
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+APPLICATION_ROOT = '/taxhub'
+# Set this to 'https' if you use encryption
+PREFERRED_URL_SCHEME = 'http'
+
+
+SESSION_TYPE = 'filesystem'
+SECRET_KEY = 'super secret key'
+COOKIE_EXPIRATION = 3600
+COOKIE_AUTORENEW = True
+
+# File
+UPLOAD_FOLDER = 'medias'
+
+#S3
+S3_BUCKET_NAME = ''
+S3_KEY = ''
+S3_SECRET = ''
+S3_ENDPOINT = 'https://s3.gra.cloud.ovh.net/' #URL pour l'api S3 (ex : https://s3.gra.cloud.ovh.net/ )
+S3_PUBLIC_URL = '' #URL publique qui permet au client d'accéder aux médias (stocker dans la BDD) (ex : media.mon_instance_geonature.fr)
+S3_FOLDER = 'taxons/' # dossier ou sont stocker les media de cette applicarion (ex : taxons ou taxhub)
+S3_REGION_NAME = '' #région (ex : gra )
+
+# Authentification crypting method (hash or md5)
+PASS_METHOD='hash'

@@ -1,0 +1,11 @@
+/var/log/taxhub/taxhub.log {
+    su ${USER} ${USER}
+    daily
+    rotate 8
+    size 100M
+    create
+    compress
+    postrotate
+    systemctl reload taxhub || true
+    endscript
+}
