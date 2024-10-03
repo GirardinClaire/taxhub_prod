@@ -3,8 +3,8 @@ app.service('TaxonService', ['$http', 'backendCfg', function($http, backendCfg) 
 
     // Récupère les statuts des noms de taxons
     this.getIdNomStatuts = function() {
-        return $http.get(backendCfg.api_url + 'taxref/idNomStatuts')
-            .then(response => response.data);
+        return $http.get(backendCfg.api_url + 'taxref/idNomStatuts') // Effectue une requête GET pour ajouter le taxon
+            .then(response => response.data); // Retourne les données de la réponse
     };
 
     // Récupère les habitats des noms de taxons

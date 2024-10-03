@@ -420,6 +420,7 @@ def get_bib_hab():
 
 ### Nouvelles fonctions réalisés pour la fonctionnalité d'ajout de taxons
 
+
 @adresses.route("/addTaxon", methods=["POST"])
 def add_taxon():
     """
@@ -429,8 +430,10 @@ def add_taxon():
         - save: boolean qui détermine si le taxon doit être enregistré ou juste vérifié.
     """
     try:
-        newTaxon = request.get_json() # objet contenant les métadonnées du taxon
-        save = newTaxon.get("save", False)  # Récupération du paramètre 'save', défini à False par défaut
+        newTaxon = request.get_json()  # objet contenant les métadonnées du taxon
+        save = newTaxon.get(
+            "save", False
+        )  # Récupération du paramètre 'save', défini à False par défaut
 
         # Vérification de l'existence d'un taxon similaire dans la base de données
         existing_taxon = (
@@ -522,7 +525,7 @@ def add_taxon():
         # REMARQUE : cette fonctionnalité est utilisée pour l'insertion multiple de taxons.
         # Elle permet de vérifier que l'ensemble des taxons peut être inséré sans erreur (pas d'erreur SQL et pas de doublons
         # dans la base de données ni dans le fichier) avant de procéder à l'insertion.
-        # Cela garantit que tous les taxons sont ajoutés en une seule opération ou aucun, 
+        # Cela garantit que tous les taxons sont ajoutés en une seule opération ou aucun,
         # assurant ainsi une gestion plus cohérente et sécurisée de l'insertion multiple.
         if not save:
             return (
@@ -534,7 +537,7 @@ def add_taxon():
                 ),
                 200,
             )
-        
+
         # Si aucune erreur n'est rencontrée ET is save, insertion du taxon dans les différentes tables ...
         db.session.add(add_Taxref)
         db.session.add(add_CorNomListe_100)
@@ -543,9 +546,9 @@ def add_taxon():
         db.session.commit()
         # avec envoie d'un message de succès une fois l'insertion effectuée
         return jsonify({"message": "Taxon ajouté avec succès !"}), 201
-    
+
     # En cas d'erreur, capture de l'exception et retour d'un message d'erreur détaillé
-    except Exception as e:    
+    except Exception as e:
         return (
             jsonify(
                 {
@@ -618,7 +621,9 @@ def get_group1_inpn_taxref():
         .distinct(Taxref.group1_inpn)
         .filter(Taxref.group1_inpn != None)
     ).all()
-    return ["Non renseigné"] + [d[0] for d in data] # Placement du choix "Non renseigné" en tête de liste
+    return ["Non renseigné"] + [
+        d[0] for d in data
+    ]  # Placement du choix "Non renseigné" en tête de liste
 
 
 @adresses.route("/groupe2_inpn", methods=["GET"])
@@ -632,4 +637,6 @@ def get_group2_inpn_taxref():
         .distinct(Taxref.group2_inpn)
         .filter(Taxref.group2_inpn != None)
     ).all()
-    return ["Non renseigné"] + [d[0] for d in data] # Placement du choix "Non renseigné" en tête de liste
+    return ["Non renseigné"] + [
+        d[0] for d in data
+    ]  # Placement du choix "Non renseigné" en tête de liste
