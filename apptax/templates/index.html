@@ -97,6 +97,29 @@
         font-size: 130%;
     }
 
+    /*** Grille 7x7 pour les rangs taxonomiques de l'onglet "Ajouter un taxon" : création de l'effet pyramide ***/
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(14, 1fr); /* 14 colonnes égales */
+        grid-template-rows: repeat(7, auto); /* 7 lignes égales */
+    }
+
+    /*** Définition du style pour les boutons d'ajout unique ou multiple ***/
+    .btn-custom {
+    background-color: white;
+    color: black;
+    border: 2px solid black; /* Contour noir */
+    border-radius: 4px; /* Coins arrondis */
+    padding: 10px 20px; /* Espacement interne pour les boutons */
+    margin: 10px; /* Espacement entre les boutons */
+    font-size: 16px; /* Taille de la police */
+    transition: background-color 0.3s, color 0.3s; /* Effet de transition pour les survols */
+    }
+
+    .btn-custom:hover {
+        background-color: black;
+        color: white;
+    }
 </style>
 </head>
 
@@ -120,11 +143,16 @@
     <script src="static/app/bib_nom/detail/bibNom-detail-controler.js"></script>
     <script src="static/app/bib_nom/edit/media/createBibnomsMedias-directives.js" charset="utf-8"></script>
 
+    <script src="static/app/add_taxon/addTaxonService.js"></script> <!-- Chargement des nouveaux fichiers utiles à la fonctionnalité d'ajout de taxons -->
+    <script src="static/app/add_taxon/addTaxonControler.js"></script> <!-- Chargement des nouveaux fichiers utiles à la fonctionnalité d'ajout de taxons -->
     <script src="static/app/components/directives/searchHierarchie-directive.js" charset="utf-8"></script>
+    <script src="static/app/components/directives/addHierarchie-directive.js" charset="utf-8"></script> <!-- Chargement des nouveaux fichiers utiles à la fonctionnalité d'ajout de taxons -->
     <script src="static/app/components/directives/createBibnomsAttributesForm-directives.js" charset="utf-8"></script>
     <script src="static/app/components/directives/createBibnomsListesForm-directives.js" charset="utf-8"></script>
     <script src="static/app/components/directives/form_input/createBibnomsAttributesFormInput-directives.js" charset="utf-8"></script>
 
     <script src="static/app/login/loginControler.js" charset="utf-8"></script>
+    <!-- Parsing des fichiers CSV pour l'insertion multiple de taxons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </body>
 </html>

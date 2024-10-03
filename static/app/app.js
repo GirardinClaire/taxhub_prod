@@ -1,6 +1,6 @@
 var app = angular.module('taxonsApp', ['ngRoute', 'ngTable', 'ui.bootstrap',
     'angular.filter', 'ngSanitize', 'ngCsv', 'toaster', 'ngCookies',
-    'ngFileUpload', 'dialogs.main'
+    'ngFileUpload', 'dialogs.main', 'ngFileUpload'
   ])
   .service('locationHistoryService', function() {
     return {
@@ -92,6 +92,14 @@ app.config(['$routeProvider',
           restricted: true,
           "level": 1
         }
+      })
+      // Route pour l'ajout d'un taxon :
+      // Lorsqu'on navigue vers '/addTaxon', le template 'addTaxon.html' est chargé
+      // et le contrôleur 'addTaxonCtrl' est utilisé pour gérer la logique, accessible via 'ctrl'.
+      .when('/addTaxon', {
+        templateUrl: 'static/app/add_taxon/addTaxon.html',
+        controller: 'addTaxonCtrl',
+        controllerAs: 'ctrl'
       })
       .otherwise({
         redirectTo: '/taxref'

@@ -416,3 +416,220 @@ def get_AllTaxrefNameByListe(code_liste=None):
 def get_bib_hab():
     data = db.session.query(BibTaxrefHabitats).all()
     return [d.as_dict() for d in data]
+
+
+### Nouvelles fonctions réalisés pour la fonctionnalité d'ajout de taxons
+
+@adresses.route("/addTaxon", methods=["POST"])
+def add_taxon():
+    """
+    Route utilisée pour insérer un nouveau taxon en bdd
+    params POST :
+        - objet contenant toutes les données du taxon à ajouter en bdd.
+        - save: boolean qui détermine si le taxon doit être enregistré ou juste vérifié.
+    """
+    try:
+        newTaxon = request.get_json() # objet contenant les métadonnées du taxon
+        save = newTaxon.get("save", False)  # Récupération du paramètre 'save', défini à False par défaut
+
+        # Vérification de l'existence d'un taxon similaire dans la base de données
+        existing_taxon = (
+            db.session.query(Taxref)
+            .filter(
+                # avec une Convertion en minuscule uniquement de certains attributs pour une comparaison plus large
+                db.func.lower(Taxref.lb_nom) == newTaxon.get("lb_nom").lower(),
+                db.func.lower(Taxref.lb_auteur) == newTaxon.get("lb_auteur").lower(),
+                db.func.lower(Taxref.nom_complet) == newTaxon.get("nom_complet").lower(),
+                db.func.lower(Taxref.nom_valide) == newTaxon.get("nom_valide").lower(),
+                db.func.lower(Taxref.nom_vern) == newTaxon.get("nom_vern").lower(),
+                db.func.lower(Taxref.nom_vern_eng) == newTaxon.get("nom_vern_eng").lower(),
+                db.func.lower(Taxref.url) == newTaxon.get("url").lower(),
+                Taxref.regne == newTaxon.get("regne"),
+                Taxref.phylum == newTaxon.get("phylum"),
+                Taxref.classe == newTaxon.get("classe"),
+                Taxref.ordre == newTaxon.get("ordre"),
+                Taxref.famille == newTaxon.get("famille"),
+                Taxref.sous_famille == newTaxon.get("sous_famille"),
+                Taxref.tribu == newTaxon.get("tribu"),
+                Taxref.id_statut == newTaxon.get("id_statut"),
+                Taxref.id_habitat == newTaxon.get("id_habitat"),
+                Taxref.id_rang == newTaxon.get("id_rang"),
+                Taxref.group1_inpn == newTaxon.get("group1_inpn"),
+                Taxref.group2_inpn == newTaxon.get("group2_inpn"),
+            )
+            .first()
+        )
+
+        if existing_taxon:
+            return (
+                jsonify(
+                    {
+                        "error": "Doublon en bdd",
+                        "message": "Le taxon existe déjà dans la base de données.",
+                    }
+                ),
+                409,
+            )
+
+        # Calcul de la prochaine valeur négative pour cd_nom
+        next_cd_nom = db.session.query(
+            db.func.coalesce(db.func.min(Taxref.cd_nom), 0) - 1
+        ).scalar()
+
+        # Création du nouvel enregistrement, avec une instertion dans les tables "taxref", "cor_nom_liste" et "bib_noms"
+        add_Taxref = Taxref(
+            cd_nom=next_cd_nom,
+            cd_ref=next_cd_nom,
+            lb_nom=newTaxon.get("lb_nom"),
+            lb_auteur=newTaxon.get("lb_auteur"),
+            nom_complet=newTaxon.get("nom_complet"),
+            nom_valide=newTaxon.get("nom_valide"),
+            nom_vern=newTaxon.get("nom_vern"),
+            nom_vern_eng=newTaxon.get("nom_vern_eng"),
+            url=newTaxon.get("url"),
+            regne=newTaxon.get("regne"),
+            phylum=newTaxon.get("phylum"),
+            classe=newTaxon.get("classe"),
+            ordre=newTaxon.get("ordre"),
+            famille=newTaxon.get("famille"),
+            sous_famille=newTaxon.get("sous_famille"),
+            tribu=newTaxon.get("tribu"),
+            id_statut=newTaxon.get("id_statut"),
+            id_habitat=newTaxon.get("id_habitat"),
+            id_rang=newTaxon.get("id_rang"),
+            group1_inpn=newTaxon.get("group1_inpn"),
+            group2_inpn=newTaxon.get("group2_inpn"),
+        )
+        add_CorNomListe_100 = CorNomListe(
+            id_liste=100,
+            id_nom=next_cd_nom,
+        )
+        add_CorNomListe_101 = CorNomListe(
+            id_liste=101,
+            id_nom=next_cd_nom,
+        )
+        add_BibNoms = BibNoms(
+            cd_nom=next_cd_nom,
+            cd_ref=next_cd_nom,
+            nom_francais=newTaxon.get("nom_vern"),
+        )
+
+        # Si le paramètre "save" est à False,
+        # le taxon n'est pas enregistré dans la base de données, même si l'insertion est possible.
+        # Le système retourne alors un message indiquant que le taxon est valid
+        # et peut être ajouté après vérification des doublons dans le fichier.
+
+        # REMARQUE : cette fonctionnalité est utilisée pour l'insertion multiple de taxons.
+        # Elle permet de vérifier que l'ensemble des taxons peut être inséré sans erreur (pas d'erreur SQL et pas de doublons
+        # dans la base de données ni dans le fichier) avant de procéder à l'insertion.
+        # Cela garantit que tous les taxons sont ajoutés en une seule opération ou aucun, 
+        # assurant ainsi une gestion plus cohérente et sécurisée de l'insertion multiple.
+        if not save:
+            return (
+                jsonify(
+                    {
+                        "error": "correct",
+                        "message": "Aucune erreur détectée. Le taxon est valide et peut être ajouté après vérification des doublons dans le fichier.",
+                    }
+                ),
+                200,
+            )
+        
+        # Si aucune erreur n'est rencontrée ET is save, insertion du taxon dans les différentes tables ...
+        db.session.add(add_Taxref)
+        db.session.add(add_CorNomListe_100)
+        db.session.add(add_CorNomListe_101)
+        db.session.add(add_BibNoms)
+        db.session.commit()
+        # avec envoie d'un message de succès une fois l'insertion effectuée
+        return jsonify({"message": "Taxon ajouté avec succès !"}), 201
+    
+    # En cas d'erreur, capture de l'exception et retour d'un message d'erreur détaillé
+    except Exception as e:    
+        return (
+            jsonify(
+                {
+                    "error": "Autre erreur (le plus souvent une erreur de syntaxe, l'oubli d'un attribut, etc.)",
+                    "message": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@adresses.route("/idNomStatuts", methods=["GET"])
+@json_resp
+def get_id_nom_statuts():
+    """
+    Retourne un dictionnaire contenant la liste des id des statuts et leur nom associé,
+    trié par ordre alphabétique sur leurs noms.
+    """
+    subquery = (
+        db.session.query(BibTaxrefStatus.id_statut, BibTaxrefStatus.nom_statut).distinct(
+            BibTaxrefStatus.id_statut
+        )
+    ).subquery()
+    data = db.session.query(subquery).order_by(subquery.c.nom_statut.asc()).all()
+    return [{"id_statut": id_statut, "nom_statut": nom_statut} for id_statut, nom_statut in data]
+
+
+@adresses.route("/idNomHabitats", methods=["GET"])
+@json_resp
+def get_id_nom_habitats():
+    """
+    Retourne un dictionnaire contenant la liste des id des habitats et leur nom associé,
+    trié par ordre alphabétique sur leurs noms.
+    """
+    subquery = (
+        db.session.query(BibTaxrefHabitats.id_habitat, BibTaxrefHabitats.nom_habitat).distinct(
+            BibTaxrefHabitats.id_habitat
+        )
+    ).subquery()
+    data = db.session.query(subquery).order_by(subquery.c.nom_habitat.asc()).all()
+    return [
+        {"id_habitat": id_habitat, "nom_habitat": nom_habitat} for id_habitat, nom_habitat in data
+    ]
+
+
+@adresses.route("/idNomRangs", methods=["GET"])
+@json_resp
+def get_id_nom_rangs():
+    """
+    Retourne un dictionnaire contenant la liste des id des rangs et leur nom associé,
+    trié par ordre alphabétique sur leurs noms.
+    """
+    subquery = (
+        db.session.query(BibTaxrefRangs.id_rang, BibTaxrefRangs.nom_rang).distinct(
+            BibTaxrefRangs.id_rang
+        )
+    ).subquery()
+    data = db.session.query(subquery).order_by(subquery.c.nom_rang.asc()).all()
+    return [{"id_rang": id_rang, "nom_rang": nom_rang} for id_rang, nom_rang in data]
+
+
+@adresses.route("/groupe1_inpn", methods=["GET"])
+@json_resp
+def get_group1_inpn_taxref():
+    """
+    Retourne la liste des groupes 1 inpn
+    """
+    data = (
+        db.session.query(Taxref.group1_inpn)
+        .distinct(Taxref.group1_inpn)
+        .filter(Taxref.group1_inpn != None)
+    ).all()
+    return ["Non renseigné"] + [d[0] for d in data] # Placement du choix "Non renseigné" en tête de liste
+
+
+@adresses.route("/groupe2_inpn", methods=["GET"])
+@json_resp
+def get_group2_inpn_taxref():
+    """
+    Retourne la liste des groupes 2 inpn
+    """
+    data = (
+        db.session.query(Taxref.group2_inpn)
+        .distinct(Taxref.group2_inpn)
+        .filter(Taxref.group2_inpn != None)
+    ).all()
+    return ["Non renseigné"] + [d[0] for d in data] # Placement du choix "Non renseigné" en tête de liste
