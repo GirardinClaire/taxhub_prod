@@ -287,8 +287,20 @@ class VMTaxrefHierarchie(db.Model):
     classe = db.Column(db.Unicode)
     ordre = db.Column(db.Unicode)
     famille = db.Column(db.Unicode)
+    sous_famille = db.Column(
+        db.Unicode
+    )  # Attribut ajouté pour l'autocomplétion avec hiérarchie taxonomique (formulaire d'insertion unique)
+    tribu = db.Column(
+        db.Unicode
+    )  # Attribut ajouté pour l'autocomplétion avec hiérarchie taxonomique (formulaire d'insertion unique)
     lb_nom = db.Column(db.Unicode)
     id_rang = db.Column(db.Unicode)
+    nb_tx_tr = db.Column(
+        db.Integer
+    )  # Attribut ajouté pour l'autocomplétion avec hiérarchie taxonomique (formulaire d'insertion unique)
+    nb_tx_sbfm = db.Column(
+        db.Integer
+    )  # Attribut ajouté pour l'autocomplétion avec hiérarchie taxonomique (formulaire d'insertion unique)
     nb_tx_fm = db.Column(db.Integer)
     nb_tx_or = db.Column(db.Integer)
     nb_tx_cl = db.Column(db.Integer)

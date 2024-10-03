@@ -1,0 +1,177 @@
+<!-- Inclure le template d'en-tête -->
+<div ng-include src="'static/app/components/header-template.html'" onload="" autoscroll=""></div>
+
+<!-- Contenu global de la page -->
+<div class="container main-zone" style="padding: 1px">
+    <!-- Panel général de la page -->
+    <div class="panel panel-default" id="add-taxon-zone" style="padding: 10px">
+
+        <!-- Titre et boutons de sélection -->
+        <div class="panel-heading text-center">
+            <h3>Ajouts de nouveaux taxons</h3>
+            <!-- Boutons pour choisir entre ajout unique et ajout multiple -->
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-custom" ng-click="ctrl.viewMode = 'unique'">Insertion d'un taxon</button>
+                <button type="button" class="btn btn-custom" ng-click="ctrl.viewMode = 'multiple'">Insertion multiple de taxons</button>
+            </div>
+        </div>
+
+        <!-- Corps du panel général -->
+        <div class="panel-body">
+
+            <!-- Afficher un message d'alerte si l'utilisateur n'est pas connecté en tant qu'admin -->
+            <div ng-if="!ctrl.isAdmin">
+                <div class="alert alert-warning">
+                    Vous devez être connecté en tant qu'administrateur pour accéder à cette page.
+                    <a href="#/taxref">Retourner à la page d'accueil</a>
+                </div>
+            </div>
+            
+            <!-- Sinon accès aux parties d'insertion de taxons -->
+            <div ng-if="ctrl.isAdmin">
+
+                <!-- Mode ajout multiple (via CSV) -->
+                <div ng-if="ctrl.viewMode === 'multiple'">
+                    <!-- Partie pour uploader un CSV -->
+                    <div class="form-group">
+                        <label for="csvUpload">Charger un fichier CSV</label>
+                        <input type="file" id="csvUpload" ngf-select ng-model="ctrl.csvFile" name="file" 
+                            accept=".csv" ngf-max-size="10MB" ngf-change="ctrl.uploadCSV($file)">
+                    </div>
+                    
+                    <!-- Bouton pour ajouter les données contenues dans le csv choisi i.e. ajout multiple de taxons-->
+                    <button type="button" class="btn btn-primary" ng-click="ctrl.addTaxonsCSV()">Ajouter les taxons</button>
+
+                    <!-- Bouton pour retirer le fichier CSV -->
+                    <button type="button" class="btn btn-danger" ng-click="ctrl.removeCSV()" ng-if="ctrl.csvFile">Retirer le fichier</button>
+
+                    <!-- Bouton pour télécharger le fichier CSV template -->
+                    <a href="static/csv/templateAddTaxons.csv" class="btn btn-secondary" download="template.csv">Télécharger un fichier CSV template</a>
+
+                    <!-- Section pour afficher les erreurs SI il y en a -->
+                    <div class="alert alert-danger" ng-if="ctrl.errors.length > 0">
+                        <h4>Erreurs détectées :</h4>
+                        <ul>
+                            <li ng-repeat="error in ctrl.errors">
+                                Ligne {{ error.ligne }} : {{ error.type }} - {{ error.msg }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <!-- Mode ajout unique -->
+                <div ng-if="ctrl.viewMode === 'unique'">
+                    <form name="addTaxonForm" ng-submit="ctrl.addTaxonForm(ctrl.newTaxon)" autocomplete="off">
+
+                        <h3>Dénominations du taxon</h3>
+
+                        <div class="row">
+                            <div class="col-md-4 form-group"> <!-- lb_nom -->
+                                <label for="inputNom">Nom du taxon *</label> <!-- Champs obligatoire -->
+                                <input type="text" class="form-control"
+                                id="inputNom" ng-model="ctrl.newTaxon.lb_nom">
+                            </div>
+
+                            <div class="col-md-4 form-group"> <!-- lb_auteur -->
+                                <label for="inputAuteur">Nom de l'auteur de cet ajout</label>
+                                <input type="text" class="form-control"
+                                id="inputAuteur" ng-model="ctrl.newTaxon.lb_auteur">
+                            </div>
+
+                            <div class="col-md-4 form-group"> <!-- nom_complet -->
+                                <label for="inputNomComplet">Nom complet du taxon</label>  <!-- = lb_nom + lb_auteur : champ grisé et maj automatiquement -->
+                                <input type="text" class="form-control"
+                                id="inputNomComplet" ng-model="ctrl.newTaxon.nom_complet" ng-disabled="true">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 form-group"> <!-- nom_valide -->
+                                <label for="inputNomValide">Nom valide du taxon</label>
+                                <input type="text" class="form-control"
+                                id="inputNomValide" ng-model="ctrl.newTaxon.nom_valide">
+                            </div>
+
+                            <div class="col-md-4 form-group"> <!-- nom_vern -->
+                                <label for="inputNomVern">Nom vernaculaire du taxon</label>
+                                <input type="text" class="form-control"
+                                id="inputNomVern" ng-model="ctrl.newTaxon.nom_vern">
+                            </div>
+
+                            <div class="col-md-4 form-group"> <!-- nom_vern_eng -->
+                                <label for="inputNomVernEng">Nom vernaculaire anglais du taxon</label>
+                                <input type="text" class="form-control"
+                                id="inputNomVernEng" ng-model="ctrl.newTaxon.nom_vern_eng">
+                            </div>
+                        </div>
+
+                        <div class="form-group"> <!-- url -->
+                            <label for="inputUrl">URL</label>
+                            <input type="text" class="form-control"
+                            id="inputUrl" ng-model="ctrl.newTaxon.url">
+                        </div>
+
+                        
+                        <h3>Hiérarchie taxonomique</h3>
+
+                        <!-- Tous les champs en autocomplétions : regne, phylum, classe, ordre, famille, sous_famille, tribu -->
+                        <div class="form-group">
+                            <add-hierarchie-dir tax-hierarchie-selected = "ctrl.newTaxon.rangTaxonomique" search-url='taxref/hierarchie/' />
+                        </div>
+
+
+                        <h3>Groupes INPN</h3>
+
+                        <div class="row">
+                            <div class="col-md-4 form-group"> <!-- group1_inpn -->
+                                <label for="inputGroup1Inpn">Groupe INPN 1 *</label> <!-- Champs obligatoire -->
+                                <select class="form-control" id="inputGroup1Inpn" ng-model="ctrl.newTaxon.group1_inpn"
+                                    ng-options="group for group in ctrl.group1Inpn"> <!-- Choix dans une liste -->
+                                </select>
+                            </div>
+                        
+                            <div class="col-md-4 form-group"> <!-- group2_inpn -->
+                                <label for="inputGroup2Inpn">Groupe INPN 2 *</label> <!-- Champs obligatoire -->
+                                <select class="form-control" id="inputGroup2Inpn" ng-model="ctrl.newTaxon.group2_inpn"
+                                    ng-options="group for group in ctrl.group2Inpn"> <!-- Choix dans une liste -->
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <h3>Classification et habitat du taxon</h3>
+
+                        <div class="row">
+                            <div class="col-md-4 form-group"> <!-- statut -->
+                                <label for="inputStatut">Statut</label>
+                                <select class="form-control" id="inputStatut" ng-model="ctrl.newTaxon.statut"
+                                    ng-options="statut.nom_statut for statut in ctrl.statuts"> <!-- Choix dans une liste -->
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 form-group"> <!-- habitat -->
+                                <label for="inputHabitat">Habitat</label>
+                                <select class="form-control" id="inputHabitat" ng-model="ctrl.newTaxon.habitat"
+                                    ng-options="habitat.nom_habitat for habitat in ctrl.habitats"> <!-- Choix dans une liste -->
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 form-group"> <!-- rang -->
+                                <label for="inputRang">Rang *</label> <!-- Champs obligatoire -->
+                                <select class="form-control" id="inputRang" ng-model="ctrl.newTaxon.rang"
+                                    ng-options="rang.nom_rang for rang in ctrl.rangs"> <!-- Choix dans une liste -->
+                                </select>
+                            </div>  
+                        </div>
+
+
+                        <!-- Bouton pour soumettre le formulaire -->
+                        <button type="submit" class="btn btn-primary">Ajouter le taxon</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

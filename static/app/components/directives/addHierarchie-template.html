@@ -1,0 +1,74 @@
+<!-- Grille 7x7 -->
+<div class="grid-container">
+
+    <!-- Case 1 -->
+    <div class="grid-item" style="grid-column: 1 / 15; grid-row: 1 / 2;">
+        <label for="addRegne">Règne</label>
+        <input type="text" id="addRegne" typeahead-editable="false" ng-model="regne"
+            uib-typeahead="tax as (tax.regne + ' ' + tax.nb_tx_kd) for tax in getTaxonHierarchie('KD', $viewValue, taxHierarchieSelected)"
+            typeahead-on-select="onSelect($item, $model, $label)"
+            class="form-control"/>
+    </div>
+
+    <!-- Case 2 -->
+    <div class="grid-item" style="grid-column: 2 / 14; grid-row: 2 / 3;">
+        <label for="addPhylum">Phylum</label>
+        <input type="text" id="addPhylum" typeahead-editable="false" ng-model="phylum"
+            uib-typeahead="tax as (tax.phylum + ' ' + tax.nb_tx_ph) for tax in getTaxonHierarchie('PH', $viewValue, taxHierarchieSelected)"
+            typeahead-on-select="onSelect($item, $model, $label)"
+            class="form-control">
+    </div>
+
+    <!-- Case 3 -->
+    <div class="grid-item" style="grid-column: 3 / 13; grid-row: 3 / 4;">
+        <label for="addClasse">Classe</label>
+        <input type="text" id="addClasse" typeahead-editable="false" ng-model="classe"
+            uib-typeahead="tax as (tax.classe + ' ' + tax.nb_tx_cl) for tax in getTaxonHierarchie('CL', $viewValue, taxHierarchieSelected)"
+            typeahead-on-select="onSelect($item, $model, $label)"
+            class="form-control">
+    </div>
+
+    <!-- Case 4 -->
+    <div class="grid-item" style="grid-column: 4 / 12; grid-row: 4 / 5;">
+        <label for="addOrdre">Ordre</label>
+        <input type="text" id="addOrdre" typeahead-editable="false" ng-model="ordre"
+            uib-typeahead="tax as (tax.ordre + ' ' + tax.nb_tx_or) for tax in getTaxonHierarchie('OR', $viewValue, taxHierarchieSelected)"
+            typeahead-on-select="onSelect($item, $model, $label)"
+            class="form-control">
+    </div>
+
+    <!-- Case 5 -->
+    <div class="grid-item" style="grid-column: 5 / 11; grid-row: 5 / 6;">
+        <label for="addFamille">Famille</label>
+        <input type="text" id="addFamille" typeahead-editable="false" ng-model="famille"
+            uib-typeahead="tax as (tax.famille + ' ' + tax.nb_tx_fm) for tax in getTaxonHierarchie('FM', $viewValue, taxHierarchieSelected)"
+            typeahead-on-select="onSelect($item, $model, $label)"
+            class="form-control"/>
+    </div>
+
+    <!-- Case 6 -->
+    <div class="grid-item" style="grid-column: 6 / 10; grid-row: 6 / 7;">
+        <label for="addSousFamille">Sous-famille</label>
+        <input type="text" id="addSousFamille" typeahead-editable="false" ng-model="sous_famille"
+            uib-typeahead="tax as (tax.sous_famille + ' ' + tax.nb_tx_sbfm) for tax in getTaxonHierarchie('SBFM', $viewValue, taxHierarchieSelected)"
+            typeahead-on-select="onSelect($item, $model, $label)"
+            class="form-control"/>
+    </div>
+
+    <!-- Case 7 -->
+    <div class="grid-item" style="grid-column: 7 / 9; grid-row: 7 / 8;">
+        <label for="addTribu">Tribu</label>
+        <input type="text" id="addTribu" typeahead-editable="false" ng-model="tribu"
+            uib-typeahead="tax as (tax.tribu + ' ' + tax.nb_tx_tr) for tax in getTaxonHierarchie('TR', $viewValue, taxHierarchieSelected)"
+            typeahead-on-select="onSelect($item, $model, $label)"
+            class="form-control"/>
+    </div>
+
+    <!-- Bouton pour vider la sélection -->
+    <div class="grid-item" style="grid-column: 14 / 15; grid-row: 7 / 8;">
+        <button type="button" class="btn btn-success" ng-click="refreshForm()"> Vider la sélection
+            <span class="glyphicon glyphicon-trash"></span>
+        </button>
+    </div>
+
+</div>

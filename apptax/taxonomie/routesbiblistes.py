@@ -15,7 +15,15 @@ from . import db
 from ..log import logmanager
 from ..utils.utilssqlalchemy import json_resp, csv_resp
 from ..utils.genericfunctions import calculate_offset_page
-from .models import BibListes, CorNomListe, Taxref, BibNoms, BibTaxrefHabitats, TMedias, CorTaxonAttribut
+from .models import (
+    BibListes,
+    CorNomListe,
+    Taxref,
+    BibNoms,
+    BibTaxrefHabitats,
+    TMedias,
+    CorTaxonAttribut,
+)
 
 
 adresses = Blueprint("bib_listes", __name__)
@@ -146,45 +154,69 @@ def getNoms_bibtaxons(idliste):
         .one()
     )
 
-    CorTaxonAttribut100 = aliased(CorTaxonAttribut, name='CorTaxonAttribut100')
-    CorTaxonAttribut101 = aliased(CorTaxonAttribut, name='CorTaxonAttribut101')
-    CorTaxonAttribut102 = aliased(CorTaxonAttribut, name='CorTaxonAttribut102')
-    CorTaxonAttribut103 = aliased(CorTaxonAttribut, name='CorTaxonAttribut103')
-    CorTaxonAttribut104 = aliased(CorTaxonAttribut, name='CorTaxonAttribut104')
-    CorTaxonAttribut105 = aliased(CorTaxonAttribut, name='CorTaxonAttribut105')
+    CorTaxonAttribut100 = aliased(CorTaxonAttribut, name="CorTaxonAttribut100")
+    CorTaxonAttribut101 = aliased(CorTaxonAttribut, name="CorTaxonAttribut101")
+    CorTaxonAttribut102 = aliased(CorTaxonAttribut, name="CorTaxonAttribut102")
+    CorTaxonAttribut103 = aliased(CorTaxonAttribut, name="CorTaxonAttribut103")
+    CorTaxonAttribut104 = aliased(CorTaxonAttribut, name="CorTaxonAttribut104")
+    CorTaxonAttribut105 = aliased(CorTaxonAttribut, name="CorTaxonAttribut105")
 
-    q = db.session.query(
-    BibNoms.id_nom,
-    BibNoms.cd_nom,
-    BibNoms.cd_ref,
-    BibNoms.nom_francais,
-    Taxref.famille,
-    Taxref.nom_complet,
-    Taxref.regne,
-    Taxref.group1_inpn,
-    Taxref.group2_inpn,
-    Taxref.id_rang,
-    Taxref.id_habitat,
-    BibTaxrefHabitats.nom_habitat,
-    TMedias.chemin,
-    CorTaxonAttribut100.valeur_attribut.label('atlas_description'),
-    CorTaxonAttribut101.valeur_attribut.label('atlas_biogeographie'),
-    CorTaxonAttribut102.valeur_attribut.label('atlas_milieu'),
-    CorTaxonAttribut103.valeur_attribut.label('atlas_habitats_lies'),
-    CorTaxonAttribut104.valeur_attribut.label('atlas_invasibilite'),
-    CorTaxonAttribut105.valeur_attribut.label('reglementation_eee')
-).join(
-    Taxref, BibNoms.cd_nom == Taxref.cd_nom
-).join(
-    BibTaxrefHabitats, BibTaxrefHabitats.id_habitat == Taxref.id_habitat
-).outerjoin(
-    TMedias, (TMedias.cd_ref == Taxref.cd_ref) & (TMedias.id_type == 1)
-    ).outerjoin(CorTaxonAttribut100, (CorTaxonAttribut100.cd_ref == Taxref.cd_ref) & (CorTaxonAttribut100.id_attribut == 100)
-    ).outerjoin(CorTaxonAttribut101, (CorTaxonAttribut101.cd_ref == Taxref.cd_ref) & (CorTaxonAttribut101.id_attribut == 101)
-    ).outerjoin(CorTaxonAttribut102, (CorTaxonAttribut102.cd_ref == Taxref.cd_ref) & (CorTaxonAttribut102.id_attribut == 102)
-    ).outerjoin(CorTaxonAttribut103, (CorTaxonAttribut103.cd_ref == Taxref.cd_ref) & (CorTaxonAttribut103.id_attribut == 103)
-    ).outerjoin(CorTaxonAttribut104, (CorTaxonAttribut104.cd_ref == Taxref.cd_ref) & (CorTaxonAttribut104.id_attribut == 104)
-    ).outerjoin(CorTaxonAttribut105, (CorTaxonAttribut105.cd_ref == Taxref.cd_ref) & (CorTaxonAttribut105.id_attribut == 105))
+    q = (
+        db.session.query(
+            BibNoms.id_nom,
+            BibNoms.cd_nom,
+            BibNoms.cd_ref,
+            BibNoms.nom_francais,
+            Taxref.famille,
+            Taxref.nom_complet,
+            Taxref.regne,
+            Taxref.group1_inpn,
+            Taxref.group2_inpn,
+            Taxref.id_rang,
+            Taxref.id_habitat,
+            BibTaxrefHabitats.nom_habitat,
+            TMedias.chemin,
+            CorTaxonAttribut100.valeur_attribut.label("atlas_description"),
+            CorTaxonAttribut101.valeur_attribut.label("atlas_biogeographie"),
+            CorTaxonAttribut102.valeur_attribut.label("atlas_milieu"),
+            CorTaxonAttribut103.valeur_attribut.label("atlas_habitats_lies"),
+            CorTaxonAttribut104.valeur_attribut.label("atlas_invasibilite"),
+            CorTaxonAttribut105.valeur_attribut.label("reglementation_eee"),
+        )
+        .join(Taxref, BibNoms.cd_nom == Taxref.cd_nom)
+        .join(BibTaxrefHabitats, BibTaxrefHabitats.id_habitat == Taxref.id_habitat)
+        .outerjoin(TMedias, (TMedias.cd_ref == Taxref.cd_ref) & (TMedias.id_type == 1))
+        .outerjoin(
+            CorTaxonAttribut100,
+            (CorTaxonAttribut100.cd_ref == Taxref.cd_ref)
+            & (CorTaxonAttribut100.id_attribut == 100),
+        )
+        .outerjoin(
+            CorTaxonAttribut101,
+            (CorTaxonAttribut101.cd_ref == Taxref.cd_ref)
+            & (CorTaxonAttribut101.id_attribut == 101),
+        )
+        .outerjoin(
+            CorTaxonAttribut102,
+            (CorTaxonAttribut102.cd_ref == Taxref.cd_ref)
+            & (CorTaxonAttribut102.id_attribut == 102),
+        )
+        .outerjoin(
+            CorTaxonAttribut103,
+            (CorTaxonAttribut103.cd_ref == Taxref.cd_ref)
+            & (CorTaxonAttribut103.id_attribut == 103),
+        )
+        .outerjoin(
+            CorTaxonAttribut104,
+            (CorTaxonAttribut104.cd_ref == Taxref.cd_ref)
+            & (CorTaxonAttribut104.id_attribut == 104),
+        )
+        .outerjoin(
+            CorTaxonAttribut105,
+            (CorTaxonAttribut105.cd_ref == Taxref.cd_ref)
+            & (CorTaxonAttribut105.id_attribut == 105),
+        )
+    )
 
     if regne:
         q = q.filter(or_(Taxref.regne == regne))
